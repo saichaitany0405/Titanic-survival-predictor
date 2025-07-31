@@ -59,12 +59,10 @@ Located in the `data/` folder:
 
 ## 📈 Model Performance
 
-- Accuracy: ~80%
-- Confusion Matrix:
-    ```
-    [[90 15]
-     [20 54]]
-    ```
+ Model                 Accuracy 
+
+ Logistic Regression   ~80%    
+ Random Forest         ~82%   
 
 ---
 
