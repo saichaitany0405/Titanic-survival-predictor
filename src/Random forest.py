@@ -8,9 +8,13 @@ import sklearn as sk
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score,classification_report,confusion_matrix
+import os
 
 # Loading dataset
-df = pd.read_csv("train.csv")
+
+current_dir = os.path.dirname(__file__)
+data_path = os.path.join(current_dir,'../data/train.csv')
+df = pd.read_csv(data_path)
 
 #EDA - Data Inspection
 # Trying to fetch the basic deatils from the train.csv file
@@ -61,20 +65,31 @@ x = df.drop(['Survived'],axis=1)
 y = df['Survived']
 #using (x_train,x_test,y_train,y_test) as variables, same as i learnt in the machine learning class by Andrew NG
 x_train,x_test,y_train,y_test =train_test_split(x,y,train_size=0.8,random_state=42) #80 percent of the data goes into traing and rest 20 percent is meant for testing; random_state ensures the same data is used for testing and training through out the model training
-#choosing the LogisticRegression model as we are classifying data between Survived and Not Survived and fitting training data to LR model
-model = LogisticRegression()
-model.fit(x_train,y_train)
-print('trained the model')
 
-#Asking the LR model to predict from 20% features of x
-y_pred = model.predict(x_test)
-#Using diffrent metrics to see how well the model predicted
-accuracy = accuracy_score(y_test,y_pred)
-# print(accuracy)
-# accuracy score = 0.8100558659217877
+from sklearn.ensemble import RandomForestClassifier #importing random forest classifier from sklearn to help, classify the titanic data 
+model = RandomForestClassifier()
+model.fit(x_train,y_train)                         #fitting the model with data of training set of x and training set of y
+y_pred = model.predict(x_test)                     #making the model predict for testing set of x
 
-confu = confusion_matrix(y_test,y_pred)
-# print(confu)
-# confusion_matrix = [[90 15]
-                    # [19 55]] (Gives True/Flase - Positives/Negatives)
+from sklearn.metrics import accuracy_score,classification_report
 
+print(accuracy_score(y_pred,y_test))              #accuracy is 0.8156424581005587
+print(classification_report(y_pred,y_test))       # Avg precision score : 0.81 ; Avg recall score : 0.81
+
+
+importances = model.feature_importances_
+features = x.columns
+feature_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+feature_df = feature_df.sort_values(by='Importance', ascending=False)
+
+# sns.barplot(x='Feature', y='Importance', data=feature_df)
+# plt.title('Random Forest Feature Importance')
+# plt.show()
+# concluding that Sex,Fare and Age  played a major role in the survival of people on titanic
+
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot()
+plt.show()
